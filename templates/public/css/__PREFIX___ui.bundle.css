@@ -1,0 +1,409 @@
+/* ============================================================================
+ * __COMPANY__ Form-UI Toolkit  ·  __PREFIX___ui.bundle.css
+ *
+ * Shared design primitives for CUSTOM UI rendered INSIDE Desk forms, lists and
+ * dialogs. This is the form-level sibling of __PREFIX___dashboard.bundle.css (.__PREFIX__-dash-).
+ *
+ * WHEN TO USE
+ *  Frappe defaults come first — List View, Report View, native fields,
+ *  frappe.DataTable, frm.dashboard. Reach for these classes ONLY where a custom
+ *  section is genuinely required and Frappe has no built-in for it. See
+ *  docs/design-system/ for the full philosophy and the JS API (__NS__.ui.*).
+ *
+ * HOW IT STAYS THEME-SAFE
+ *  Every colour is a token (§1) bound to a Frappe theme variable with a literal
+ *  fallback, e.g. var(--green-600, #1a8a52). So these primitives follow Desk
+ *  light/dark today and the v16 "Espresso" re-skin tomorrow — no hardcoded hex
+ *  to chase down later.
+ *
+ * RULES
+ *  • Class prefix: .__PREFIX__-ui-   (never style bare elements, never leak into Desk).
+ *  • Components reference tokens — NEVER write a raw hex inside a component.
+ *  • Need a new colour meaning? Add a token in §1, don't inline it.
+ * ============================================================================ */
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §1 · DESIGN TOKENS  (bound to Frappe theme vars, literal fallback last)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+:root {
+	/* — Spacing (4px scale) — */
+	--__PREFIX__-space-1: 4px;  --__PREFIX__-space-2: 8px;  --__PREFIX__-space-3: 12px;
+	--__PREFIX__-space-4: 16px; --__PREFIX__-space-5: 20px; --__PREFIX__-space-6: 24px;
+
+	/* — Radius — */
+	--__PREFIX__-radius-sm: 4px;
+	--__PREFIX__-radius-md: 8px;
+	--__PREFIX__-radius-pill: 999px;
+
+	/* — Type — */
+	--__PREFIX__-text-xs: 11px;
+	--__PREFIX__-text-sm: 12px;
+	--__PREFIX__-text-base: 13px;
+	--__PREFIX__-text-md: 14px;
+
+	/* — Surfaces / text / lines — */
+	--__PREFIX__-surface:      var(--card-bg, var(--fg-color, #ffffff));
+	--__PREFIX__-surface-alt:  var(--bg-light-gray, #f4f5f6);
+	--__PREFIX__-border:       var(--border-color, #e2e6e9);
+	--__PREFIX__-text:         var(--text-color, #1f272e);
+	--__PREFIX__-text-muted:   var(--text-muted, #6c7680);
+	--__PREFIX__-link:         var(--primary, #2490ef);
+
+	/* — Status (semantic): fg = text/border, bg = SUBTLE tint —
+	 * NOTE: we DON'T use Frappe's --bg-green/--bg-red here. Those are tints in
+	 * light mode but flip to SATURATED colours in dark mode (e.g. --bg-red →
+	 * red-600), which would equal our fg and make pill text invisible. So we
+	 * define our own subtle tints per theme (light here, dark in the block below). */
+	--__PREFIX__-success-fg: var(--green-600, #1a8a52);
+	--__PREFIX__-success-bg: #e7f5ec;
+	--__PREFIX__-danger-fg:  var(--red-600, #c0392b);
+	--__PREFIX__-danger-bg:  #fbe9e7;
+	--__PREFIX__-warning-fg: var(--orange-600, #b9770b);
+	--__PREFIX__-warning-bg: #fdf1e3;
+	--__PREFIX__-info-fg:    var(--blue-600, #2376d6);
+	--__PREFIX__-info-bg:    #e8f1fd;
+	--__PREFIX__-neutral-fg: var(--text-muted, #6c7680);
+	--__PREFIX__-neutral-bg: #eef0f2;
+}
+
+/* Re-resolve theme-derived tokens on dark subtrees (and html[data-theme=dark]).
+ * REQUIRED: a custom property whose value references another var() is computed
+ * at its DECLARATION scope, so tokens declared only at :root stay pinned to the
+ * light values inside a dark subtree. Re-declaring them here forces them to
+ * re-resolve against Frappe's dark palette. Static tokens (spacing/radius/type)
+ * don't reference vars, so they don't need repeating. */
+[data-theme="dark"] {
+	--__PREFIX__-surface:      var(--card-bg, #1f2225);
+	--__PREFIX__-surface-alt:  var(--bg-light-gray, #2a2d31);
+	--__PREFIX__-border:       var(--border-color, #34383d);
+	--__PREFIX__-text:         var(--text-color, #e6e7e9);
+	--__PREFIX__-text-muted:   var(--text-muted, #9b9fa4);
+	/* Explicit light blue — Frappe's --primary isn't re-lightened for dark,
+	 * so links would render dark-on-dark if bound to it. */
+	--__PREFIX__-link:         #6cb0f2;
+
+	/* Self-defined dark tints (lighter fg + low-alpha tint), NOT Frappe's
+	 * --bg-* which go saturated in dark and would hide the text. */
+	--__PREFIX__-success-fg: #5fc28d;
+	--__PREFIX__-success-bg: rgba(95, 194, 141, 0.16);
+	--__PREFIX__-danger-fg:  #e98b84;
+	--__PREFIX__-danger-bg:  rgba(233, 139, 132, 0.16);
+	--__PREFIX__-warning-fg: #e0a24e;
+	--__PREFIX__-warning-bg: rgba(224, 162, 78, 0.16);
+	--__PREFIX__-info-fg:    #6cb0f2;
+	--__PREFIX__-info-bg:    rgba(108, 176, 242, 0.16);
+	--__PREFIX__-neutral-fg: var(--text-muted, #9b9fa4);
+	--__PREFIX__-neutral-bg: rgba(255, 255, 255, 0.10);
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §2 · BANNER  —  info / success / warning / danger callout
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-ui-banner {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--__PREFIX__-space-2);
+	padding: var(--__PREFIX__-space-3);
+	border: 1px solid transparent;
+	border-left-width: 3px;
+	border-radius: var(--__PREFIX__-radius-sm);
+	font-size: var(--__PREFIX__-text-base);
+	line-height: 1.45;
+	color: var(--__PREFIX__-text);
+	margin-bottom: var(--__PREFIX__-space-3);
+}
+.__PREFIX__-ui-banner__icon { flex: 0 0 auto; margin-top: 1px; line-height: 0; }
+.__PREFIX__-ui-banner__icon .icon { width: 14px; height: 14px; }
+.__PREFIX__-ui-banner__body { flex: 1 1 auto; min-width: 0; }
+.__PREFIX__-ui-banner__body > :last-child { margin-bottom: 0; }
+
+.__PREFIX__-ui-banner--info    { background: var(--__PREFIX__-info-bg);    border-left-color: var(--__PREFIX__-info-fg); }
+.__PREFIX__-ui-banner--success { background: var(--__PREFIX__-success-bg); border-left-color: var(--__PREFIX__-success-fg); }
+.__PREFIX__-ui-banner--warning { background: var(--__PREFIX__-warning-bg); border-left-color: var(--__PREFIX__-warning-fg); }
+.__PREFIX__-ui-banner--danger  { background: var(--__PREFIX__-danger-bg);  border-left-color: var(--__PREFIX__-danger-fg); }
+
+.__PREFIX__-ui-banner--info    .__PREFIX__-ui-banner__icon { color: var(--__PREFIX__-info-fg); }
+.__PREFIX__-ui-banner--success .__PREFIX__-ui-banner__icon { color: var(--__PREFIX__-success-fg); }
+.__PREFIX__-ui-banner--warning .__PREFIX__-ui-banner__icon { color: var(--__PREFIX__-warning-fg); }
+.__PREFIX__-ui-banner--danger  .__PREFIX__-ui-banner__icon { color: var(--__PREFIX__-danger-fg); }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §3 · PILL  —  small inline status indicator (a.k.a. badge)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-ui-pill {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: var(--__PREFIX__-radius-pill);
+	font-size: var(--__PREFIX__-text-xs);
+	font-weight: 600;
+	line-height: 1.6;
+	white-space: nowrap;
+	background: var(--__PREFIX__-neutral-bg);
+	color: var(--__PREFIX__-neutral-fg);
+}
+.__PREFIX__-ui-pill--success { background: var(--__PREFIX__-success-bg); color: var(--__PREFIX__-success-fg); }
+.__PREFIX__-ui-pill--danger  { background: var(--__PREFIX__-danger-bg);  color: var(--__PREFIX__-danger-fg); }
+.__PREFIX__-ui-pill--warning { background: var(--__PREFIX__-warning-bg); color: var(--__PREFIX__-warning-fg); }
+.__PREFIX__-ui-pill--info    { background: var(--__PREFIX__-info-bg);    color: var(--__PREFIX__-info-fg); }
+.__PREFIX__-ui-pill--neutral { background: var(--__PREFIX__-neutral-bg); color: var(--__PREFIX__-neutral-fg); }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §4 · TABLE  —  read-only contextual list (NOT a list/report view)
+ *   For sort/filter/resize use __NS__.ui.dataTable() (wraps frappe.DataTable).
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-ui-table-wrap { width: 100%; overflow-x: auto; }
+.__PREFIX__-ui-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--__PREFIX__-text-base);
+	color: var(--__PREFIX__-text);
+}
+.__PREFIX__-ui-table thead th {
+	text-align: left;
+	font-size: var(--__PREFIX__-text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	color: var(--__PREFIX__-text-muted);
+	background: var(--__PREFIX__-surface-alt);
+	padding: var(--__PREFIX__-space-2) var(--__PREFIX__-space-3);
+	border-top: 1px solid var(--__PREFIX__-border);
+	border-bottom: 1px solid var(--__PREFIX__-border);
+	white-space: nowrap;
+}
+.__PREFIX__-ui-table tbody td {
+	padding: var(--__PREFIX__-space-2) var(--__PREFIX__-space-3);
+	border-bottom: 1px solid var(--__PREFIX__-border);
+	vertical-align: middle;
+}
+.__PREFIX__-ui-table tbody tr:last-child td { border-bottom: none; }
+.__PREFIX__-ui-table tbody tr:hover td { background: var(--__PREFIX__-surface-alt); }
+.__PREFIX__-ui-table .__PREFIX__-ui-num { text-align: right; font-variant-numeric: tabular-nums; }
+/* Entity links read as normal text (black in light, white in dark); the
+ * underline on hover is the affordance — no blue. */
+.__PREFIX__-ui-table a { color: var(--__PREFIX__-text); text-decoration: none; font-weight: 500; }
+.__PREFIX__-ui-table a:hover { text-decoration: underline; }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §5 · PANEL  —  card shell for a custom form section
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-ui-panel {
+	background: var(--__PREFIX__-surface);
+	border: 1px solid var(--__PREFIX__-border);
+	border-radius: var(--__PREFIX__-radius-md);
+	padding: var(--__PREFIX__-space-4) var(--__PREFIX__-space-5);
+	margin-bottom: var(--__PREFIX__-space-4);
+}
+.__PREFIX__-ui-panel__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--__PREFIX__-space-3);
+	margin-bottom: var(--__PREFIX__-space-3);
+}
+.__PREFIX__-ui-panel__title {
+	display: flex;
+	align-items: center;
+	gap: var(--__PREFIX__-space-2);
+	margin: 0;
+	font-size: var(--__PREFIX__-text-md);
+	font-weight: 600;
+	color: var(--__PREFIX__-text);
+}
+.__PREFIX__-ui-panel__title .icon { color: var(--__PREFIX__-text-muted); }
+.__PREFIX__-ui-panel__meta { font-size: var(--__PREFIX__-text-xs); color: var(--__PREFIX__-text-muted); white-space: nowrap; }
+.__PREFIX__-ui-panel__body > :last-child { margin-bottom: 0; }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §6 · STATES + HELPERS  —  empty / loading / meta / toolbar
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-ui-empty {
+	color: var(--__PREFIX__-text-muted);
+	text-align: center;
+	padding: var(--__PREFIX__-space-6) var(--__PREFIX__-space-3);
+	font-style: italic;
+}
+.__PREFIX__-ui-empty__icon { display: block; margin-bottom: var(--__PREFIX__-space-2); opacity: 0.5; }
+.__PREFIX__-ui-loading { color: var(--__PREFIX__-text-muted); text-align: center; padding: var(--__PREFIX__-space-6) 0; }
+.__PREFIX__-ui-meta { color: var(--__PREFIX__-text-muted); font-size: var(--__PREFIX__-text-sm); }
+.__PREFIX__-ui-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: var(--__PREFIX__-space-2);
+	margin-bottom: var(--__PREFIX__-space-2);
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §7 · ACCORDION  —  collapsible group (e.g. grouped sections)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-ui-accordion {
+	border: 1px solid var(--__PREFIX__-border);
+	border-radius: var(--__PREFIX__-radius-md);
+	background: var(--__PREFIX__-surface);
+	margin-bottom: var(--__PREFIX__-space-3);
+	overflow: hidden;
+}
+.__PREFIX__-ui-accordion > summary {
+	display: flex;
+	align-items: center;
+	gap: var(--__PREFIX__-space-3);
+	padding: var(--__PREFIX__-space-3) var(--__PREFIX__-space-4);
+	cursor: pointer;
+	user-select: none;
+	list-style: none;
+	font-size: var(--__PREFIX__-text-md);
+}
+.__PREFIX__-ui-accordion > summary::-webkit-details-marker { display: none; }
+.__PREFIX__-ui-accordion > summary::before {
+	content: "";
+	flex: 0 0 auto;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 5px 0 5px 7px;   /* right-pointing caret, ~10px tall */
+	border-color: transparent transparent transparent var(--__PREFIX__-text-muted);
+	transition: transform 0.15s ease, border-left-color 0.15s ease;
+}
+.__PREFIX__-ui-accordion[open] > summary::before { transform: rotate(90deg); }
+.__PREFIX__-ui-accordion > summary:hover::before { border-left-color: var(--__PREFIX__-text); }
+.__PREFIX__-ui-accordion > summary:hover { background: var(--__PREFIX__-surface-alt); }
+.__PREFIX__-ui-accordion__title { font-weight: 600; color: var(--__PREFIX__-text); }
+.__PREFIX__-ui-accordion__meta { color: var(--__PREFIX__-text-muted); font-size: var(--__PREFIX__-text-sm); }
+.__PREFIX__-ui-accordion__spacer { flex: 1 1 auto; }
+.__PREFIX__-ui-accordion__body { padding: 0 var(--__PREFIX__-space-2) var(--__PREFIX__-space-2); }
+.__PREFIX__-ui-accordion__body .__PREFIX__-ui-table thead th { background: var(--__PREFIX__-surface-alt); }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §8 · TOOLTIP (CSS-only, multi-line) + ATTENTION STRIP
+ *   The reusable form of the a list view "needs attention" pills.
+ *   Pass "\n" in the tip text for line breaks (white-space: pre-line).
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-ui-has-tip { position: relative; }
+.__PREFIX__-ui-has-tip::after {
+	content: attr(data-tk-tip);
+	position: absolute;
+	bottom: calc(100% + 6px);
+	left: 50%;
+	transform: translateX(-50%) translateY(4px);
+	white-space: pre-line;
+	width: max-content;
+	max-width: 260px;
+	text-align: left;
+	background: #1f272e;
+	color: #fff;
+	border: 1px solid rgba(255, 255, 255, 0.14);
+	padding: 6px 9px;
+	border-radius: var(--__PREFIX__-radius-sm);
+	font-size: var(--__PREFIX__-text-sm);
+	font-weight: 400;
+	line-height: 1.45;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.12s ease, transform 0.12s ease;
+	z-index: 100;
+}
+.__PREFIX__-ui-has-tip:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.__PREFIX__-ui-attention {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--__PREFIX__-space-2);
+}
+.__PREFIX__-ui-attention__label {
+	font-size: var(--__PREFIX__-text-sm);
+	font-weight: 600;
+	color: var(--__PREFIX__-text-muted);
+	margin-right: var(--__PREFIX__-space-1);
+}
+.__PREFIX__-ui-attention .__PREFIX__-ui-pill b { font-weight: 700; margin-left: 4px; }
+.__PREFIX__-ui-attention .__PREFIX__-ui-pill.is-clickable { cursor: pointer; }
+.__PREFIX__-ui-attention .__PREFIX__-ui-pill.is-clickable:hover { filter: brightness(0.96); }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §9 · DETAIL LIST  —  read-only label : value pairs
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-ui-dl { margin: 0; }
+.__PREFIX__-ui-dl__row {
+	display: grid;
+	grid-template-columns: minmax(110px, 34%) 1fr;
+	gap: var(--__PREFIX__-space-3);
+	padding: var(--__PREFIX__-space-2) 0;
+	border-bottom: 1px solid var(--__PREFIX__-border);
+}
+.__PREFIX__-ui-dl__row:last-child { border-bottom: none; }
+.__PREFIX__-ui-dl__label { margin: 0; color: var(--__PREFIX__-text-muted); font-size: var(--__PREFIX__-text-sm); }
+.__PREFIX__-ui-dl__value { margin: 0; color: var(--__PREFIX__-text); min-width: 0; word-break: break-word; }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §10 · GALLERY + LIGHTBOX  —  thumbnail grid, click to zoom
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-ui-gallery {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+	gap: var(--__PREFIX__-space-2);
+}
+.__PREFIX__-ui-gallery__item {
+	position: relative;
+	display: block;
+	aspect-ratio: 1 / 1;
+	border: 1px solid var(--__PREFIX__-border);
+	border-radius: var(--__PREFIX__-radius-sm);
+	overflow: hidden;
+	background: var(--__PREFIX__-surface-alt);
+	cursor: zoom-in;
+}
+.__PREFIX__-ui-gallery__item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.__PREFIX__-ui-gallery__cap {
+	position: absolute;
+	left: 0; right: 0; bottom: 0;
+	padding: 2px 6px;
+	font-size: var(--__PREFIX__-text-xs);
+	color: #fff;
+	background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+	white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.__PREFIX__-ui-lightbox {
+	position: fixed;
+	inset: 0;
+	z-index: 2000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 32px;
+	background: rgba(0, 0, 0, 0.8);
+	cursor: zoom-out;
+}
+.__PREFIX__-ui-lightbox__inner { margin: 0; max-width: 92vw; max-height: 92vh; text-align: center; }
+.__PREFIX__-ui-lightbox__inner img { max-width: 92vw; max-height: 84vh; border-radius: var(--__PREFIX__-radius-sm); }
+.__PREFIX__-ui-lightbox__cap { margin-top: var(--__PREFIX__-space-2); color: #fff; font-size: var(--__PREFIX__-text-sm); }
+.__PREFIX__-ui-lightbox__count { margin-top: var(--__PREFIX__-space-1); color: rgba(255, 255, 255, 0.7); font-size: var(--__PREFIX__-text-xs); }
+.__PREFIX__-ui-lightbox__nav {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 44px;
+	height: 64px;
+	border: none;
+	border-radius: var(--__PREFIX__-radius-sm);
+	background: rgba(255, 255, 255, 0.12);
+	color: #fff;
+	font-size: 30px;
+	line-height: 1;
+	cursor: pointer;
+}
+.__PREFIX__-ui-lightbox__nav:hover { background: rgba(255, 255, 255, 0.22); }
+.__PREFIX__-ui-lightbox__prev { left: 16px; }
+.__PREFIX__-ui-lightbox__next { right: 16px; }

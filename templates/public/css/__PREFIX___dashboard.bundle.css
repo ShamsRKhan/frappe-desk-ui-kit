@@ -1,0 +1,570 @@
+/* ============================================================================
+ * __COMPANY__ Dashboard Design System
+ *
+ * Class prefix:  .__PREFIX__-dash-
+ * Scope anchor:  .__PREFIX__-dash-page (every rule descends from this so nothing
+ *                leaks into the rest of the desk)
+ *
+ * MAINTENANCE
+ *  • Change a token in §1, every component picks it up.
+ *  • Add a new dashboard? Wrap content in .__PREFIX__-dash-page and use the
+ *    component classes — no per-page CSS needed.
+ *  • Variants for urgency/info/etc. are modifier classes (no extra files).
+ *
+ * BRAND USAGE
+ *  Brand `--color-brand` (__BRAND__) is an accent, not a background.
+ *  Used ONLY in:
+ *    – Page-header bottom underline (a single anchor)
+ *    – Primary action button
+ *    – Section-title left bar (tiny)
+ *    – KPI card status dot (top-right, 6px)
+ *    – Hover/focus borders
+ *  NEVER in: table headers, KPI-value text by default, full backgrounds.
+ *  Status colours (success/danger/warning/info) carry meaning, not decoration.
+ * ============================================================================ */
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §1 · DESIGN TOKENS
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page {
+	/* — Surfaces & lines — */
+	--color-bg:            #FAFBFC;
+	--color-surface:       #FFFFFF;
+	--color-surface-alt:   #F9FAFB;
+	--color-border:        #E5E7EB;
+	--color-border-strong: #D1D5DB;
+
+	/* — Text — */
+	--color-text:          #111827;
+	--color-text-muted:    #6B7280;
+	--color-text-subtle:   #9CA3AF;
+
+	/* — Brand (use sparingly) — */
+	--color-brand:         __BRAND__;   /* your brand accent — used sparingly */
+	--color-brand-deep:    #B45309;   /* darker shade for text/links — retune to match brand */
+	--color-brand-tint:    #FFFBEB;   /* near-white brand wash for hover */
+
+	/* — Status (semantic) — */
+	--color-success:       #10B981;
+	--color-success-bg:    #ECFDF5;
+	--color-success-fg:    #047857;
+	--color-danger:        #EF4444;
+	--color-danger-bg:     #FEF2F2;
+	--color-danger-fg:     #B91C1C;
+	--color-warning:       #F59E0B;
+	--color-warning-bg:    #FEF3C7;
+	--color-warning-fg:    #92400E;
+	--color-info:          #3B82F6;
+	--color-info-bg:       #EFF6FF;
+	--color-info-fg:       #1E40AF;
+	--color-neutral-bg:    #F3F4F6;
+	--color-neutral-fg:    #4B5563;
+
+	/* — Heatmap palettes (start, end) — used by JS via getComputedStyle — */
+	--heat-expiry-from:    #FFEDD5;   --heat-expiry-to:    #C2410C;
+	--heat-growth-from:    #D1FAE5;   --heat-growth-to:    #065F46;
+	--heat-churn-from:     #FEE2E2;   --heat-churn-to:     #991B1B;
+	--heat-renewal-from:   #DBEAFE;   --heat-renewal-to:   #1E3A8A;
+
+	/* — Spacing (4px scale) — */
+	--space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+	--space-5: 20px;  --space-6: 24px;  --space-8: 32px;  --space-10: 40px;
+
+	/* — Radius — */
+	--radius-sm:   4px;
+	--radius-md:   8px;
+	--radius-lg:   12px;
+	--radius-pill: 999px;
+
+	/* — Typography — */
+	--font-sans: -apple-system, "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+	--text-xs:   11px;
+	--text-sm:   12px;
+	--text-base: 13px;
+	--text-md:   14px;
+	--text-lg:   18px;
+	--text-xl:   22px;
+	--text-2xl:  26px;
+
+	/* — Elevation — */
+	--shadow-xs: 0 1px 2px rgba(15, 23, 42, .04);
+	--shadow-sm: 0 1px 3px rgba(15, 23, 42, .06);
+	--shadow-md: 0 4px 8px rgba(15, 23, 42, .06);
+
+	/* — Motion — */
+	--ease-fast: 0.12s ease;
+	--ease-base: 0.18s ease;
+
+	/* Page-level layout */
+	font-family: var(--font-sans);
+	color: var(--color-text);
+	font-size: var(--text-base);
+	line-height: 1.5;
+	max-width: 1440px;
+	margin: 0 auto;
+	padding: var(--space-5) 0 var(--space-10);
+	background: var(--color-bg);
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §2 · LAYOUT — grids
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-row {
+	display: grid;
+	gap: var(--space-3);
+	margin-bottom: var(--space-3);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-row-1 { grid-template-columns: 1fr; }
+.__PREFIX__-dash-page .__PREFIX__-dash-row-2 { grid-template-columns: 1fr 1fr; }
+.__PREFIX__-dash-page .__PREFIX__-dash-row-3 { grid-template-columns: repeat(3, 1fr); }
+.__PREFIX__-dash-page .__PREFIX__-dash-row-4 { grid-template-columns: repeat(4, 1fr); }
+.__PREFIX__-dash-page .__PREFIX__-dash-row-5 { grid-template-columns: repeat(5, 1fr); }
+.__PREFIX__-dash-page .__PREFIX__-dash-row-6 { grid-template-columns: repeat(6, 1fr); }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §3 · HEADER
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-header {
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	padding: var(--space-5) var(--space-6);
+	margin-bottom: var(--space-6);
+	position: relative;
+	overflow: hidden;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-header::after {
+	content: "";
+	position: absolute; left: 0; right: 0; bottom: 0;
+	height: 3px;
+	background: linear-gradient(90deg, var(--color-brand) 0%, var(--color-warning) 60%, transparent 100%);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-header h2 {
+	font-size: var(--text-xl);
+	font-weight: 700;
+	letter-spacing: -0.2px;
+	color: var(--color-text);
+	margin: 0;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-header-meta {
+	display: flex; flex-wrap: wrap;
+	gap: var(--space-5);
+	margin-top: var(--space-3);
+	font-size: var(--text-sm);
+	color: var(--color-text-muted);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-header-meta span::before {
+	content: "·"; margin-right: var(--space-2);
+	color: var(--color-border-strong);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-header-meta span:first-child::before { content: ""; margin: 0; }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §4 · SECTION TITLES
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-section-title {
+	font-size: var(--text-md);
+	font-weight: 600;
+	color: var(--color-text);
+	margin: var(--space-8) 0 var(--space-4);
+	letter-spacing: -0.1px;
+	display: flex; align-items: center; gap: var(--space-2);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-section-title::before {
+	content: "";
+	width: 3px;
+	height: 16px;
+	background: var(--color-brand);
+	border-radius: 2px;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-section-title small {
+	font-size: var(--text-xs);
+	font-weight: 400;
+	color: var(--color-text-muted);
+	margin-left: var(--space-2);
+	text-transform: none;
+	letter-spacing: 0;
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §5 · CARDS
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-card {
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	padding: var(--space-4) var(--space-5);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-card-title {
+	font-size: var(--text-base);
+	color: var(--color-text);
+	font-weight: 600;
+	margin-bottom: var(--space-4);
+	display: flex; align-items: center; justify-content: space-between;
+	gap: var(--space-3);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-card-subtitle {
+	font-size: var(--text-xs);
+	color: var(--color-text-muted);
+	font-weight: 400;
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §6 · KPI CARDS — neutral surface + tiny brand dot accent
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi {
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	padding: var(--space-4) var(--space-5);
+	box-shadow: var(--shadow-xs);
+	position: relative;
+	transition: border-color var(--ease-fast), box-shadow var(--ease-fast);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi::before {
+	content: "";
+	position: absolute; top: var(--space-4); right: var(--space-4);
+	width: 6px; height: 6px;
+	border-radius: 50%;
+	background: var(--color-brand);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi:hover {
+	border-color: var(--color-border-strong);
+	box-shadow: var(--shadow-sm);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-label {
+	font-size: var(--text-xs);
+	color: var(--color-text-muted);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	margin-bottom: var(--space-2);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-value {
+	font-size: var(--text-2xl);
+	font-weight: 700;
+	line-height: 1.1;
+	color: var(--color-text);
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.4px;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-sub {
+	font-size: var(--text-xs);
+	color: var(--color-text-muted);
+	margin-top: var(--space-2);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-delta {
+	display: inline-block;
+	font-size: var(--text-xs);
+	font-weight: 600;
+	margin-left: var(--space-2);
+	padding: 2px 8px;
+	border-radius: var(--radius-pill);
+	vertical-align: middle;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-delta-up   { background: var(--color-success-bg); color: var(--color-success-fg); }
+.__PREFIX__-dash-page .__PREFIX__-dash-delta-down { background: var(--color-danger-bg);  color: var(--color-danger-fg); }
+.__PREFIX__-dash-page .__PREFIX__-dash-delta-flat { background: var(--color-neutral-bg); color: var(--color-neutral-fg); }
+
+/* KPI variants — only the dot color changes */
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-urgent::before { background: var(--color-danger); }
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-info::before   { background: var(--color-info); }
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-success::before { background: var(--color-success); }
+
+
+/* — KPI split card — two related metrics paired in one container.
+ * Use case: Active | Suspended (running cohort), Won | Lost (sales),
+ * any time two states naturally read together. Each half styled like
+ * a normal KPI but without its own border. */
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-split {
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	box-shadow: var(--shadow-xs);
+	overflow: hidden;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	transition: border-color var(--ease-fast), box-shadow var(--ease-fast);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-split:hover {
+	border-color: var(--color-border-strong);
+	box-shadow: var(--shadow-sm);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-split-half {
+	padding: var(--space-4) var(--space-5);
+	position: relative;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-split-half + .__PREFIX__-dash-kpi-split-half {
+	border-left: 1px solid var(--color-border);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-split-half::before {
+	content: "";
+	position: absolute;
+	top: var(--space-4); right: var(--space-4);
+	width: 6px; height: 6px;
+	border-radius: 50%;
+	background: var(--color-brand);
+}
+/* Status dots for the split halves */
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-split-half-active::before  { background: var(--color-success); }
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-split-half-paused::before  { background: var(--color-warning); }
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-split-half-danger::before  { background: var(--color-danger); }
+.__PREFIX__-dash-page .__PREFIX__-dash-kpi-split-half-info::before    { background: var(--color-info); }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §7 · TABLES — neutral header (NOT brand), zebra rows, hover highlight
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--text-base);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-table thead th {
+	background: var(--color-surface-alt);
+	color: var(--color-text-muted);
+	padding: var(--space-3) var(--space-3);
+	text-align: left;
+	font-size: var(--text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	border-top: 1px solid var(--color-border);
+	border-bottom: 1px solid var(--color-border);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-table tbody td {
+	padding: var(--space-3) var(--space-3);
+	border-bottom: 1px solid #F3F4F6;
+	color: var(--color-text);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-table tbody tr:last-child td { border-bottom: none; }
+.__PREFIX__-dash-page .__PREFIX__-dash-table tbody tr:hover td { background: var(--color-brand-tint); }
+.__PREFIX__-dash-page .__PREFIX__-dash-num {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-net-pos { color: var(--color-success-fg); font-weight: 600; }
+.__PREFIX__-dash-page .__PREFIX__-dash-net-neg { color: var(--color-danger-fg);  font-weight: 600; }
+.__PREFIX__-dash-page .__PREFIX__-dash-table a {
+	color: var(--color-brand-deep);
+	text-decoration: none;
+	font-weight: 500;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-table a:hover { text-decoration: underline; }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §8 · PILLS — small status indicators inside tables / cards
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-pill {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: var(--radius-pill);
+	font-size: var(--text-xs);
+	font-weight: 600;
+	background: var(--color-neutral-bg);
+	color: var(--color-neutral-fg);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-pill-danger  { background: var(--color-danger-bg);  color: var(--color-danger-fg); }
+.__PREFIX__-dash-page .__PREFIX__-dash-pill-warning { background: var(--color-warning-bg); color: var(--color-warning-fg); }
+.__PREFIX__-dash-page .__PREFIX__-dash-pill-info    { background: var(--color-info-bg);    color: var(--color-info-fg); }
+.__PREFIX__-dash-page .__PREFIX__-dash-pill-success { background: var(--color-success-bg); color: var(--color-success-fg); }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §9 · CHARTS
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-chart-wrap    { position: relative; height: 280px; }
+.__PREFIX__-dash-page .__PREFIX__-dash-chart-wrap-lg { position: relative; height: 340px; }
+.__PREFIX__-dash-page .__PREFIX__-dash-chart-hint {
+	font-size: var(--text-xs);
+	color: var(--color-text-subtle);
+	font-weight: 400;
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §10 · HEATMAP — colors set inline by JS using --heat-*-from/to vars
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-heatmap {
+	display: grid;
+	gap: 2px;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-heatmap-cell {
+	min-height: 30px;
+	border-radius: var(--radius-sm);
+	display: flex; align-items: center; justify-content: center;
+	font-size: var(--text-xs);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	transition: transform var(--ease-fast), outline var(--ease-fast);
+	cursor: default;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-heatmap-cell:hover {
+	transform: scale(1.04);
+	outline: 1px solid var(--color-text);
+	z-index: 1;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-heatmap-label {
+	display: flex; align-items: center;
+	font-weight: 500;
+	color: var(--color-text);
+	font-size: var(--text-sm);
+	padding-right: var(--space-3);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-heatmap-col-label {
+	text-align: center;
+	font-size: var(--text-xs);
+	color: var(--color-text-subtle);
+	padding-bottom: var(--space-2);
+	font-weight: 500;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-heatmap-legend {
+	display: inline-flex; align-items: center;
+	gap: var(--space-1);
+	font-size: var(--text-xs);
+	color: var(--color-text-muted);
+	margin-top: var(--space-3);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-heatmap-legend-bar {
+	width: 120px; height: 8px;
+	border-radius: var(--radius-sm);
+	margin: 0 var(--space-2);
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §11 · CHIPS — preset range buttons
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-presets {
+	display: flex; align-items: center;
+	gap: var(--space-2);
+	flex-wrap: wrap;
+	margin-bottom: var(--space-3);
+}
+/* Reset native button rendering for our chips/buttons — defeats the OS
+ * "Windows-98" 3D appearance some browsers apply to bare <button>. We
+ * render plain <button type="button"> with only our class. */
+.__PREFIX__-dash-page .__PREFIX__-dash-preset,
+.__PREFIX__-dash-page .__PREFIX__-dash-reset-zoom {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: inherit;
+	cursor: pointer;
+	user-select: none;
+	transition: background var(--ease-fast), border-color var(--ease-fast), color var(--ease-fast);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-preset {
+	font-size: var(--text-xs);
+	font-weight: 500;
+	padding: 5px 12px;
+	border-radius: var(--radius-pill);
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	color: var(--color-text-muted);
+	line-height: 1.2;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-preset:hover {
+	background: var(--color-brand-tint);
+	border-color: var(--color-brand);
+	color: var(--color-text);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-preset:active { transform: translateY(1px); }
+.__PREFIX__-dash-page .__PREFIX__-dash-reset-zoom {
+	font-size: var(--text-xs);
+	font-weight: 500;
+	padding: 4px 10px;
+	border-radius: var(--radius-sm);
+	border: 1px solid var(--color-border);
+	background: var(--color-surface);
+	color: var(--color-text-muted);
+	line-height: 1.2;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-reset-zoom:hover {
+	background: var(--color-surface-alt);
+	color: var(--color-text);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-presets-label {
+	font-size: var(--text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--color-text-muted);
+	margin-right: var(--space-2);
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §11b · FOOTER — drill-out to underlying reports
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-footer {
+	margin-top: var(--space-10);
+	padding-top: var(--space-5);
+	border-top: 1px solid var(--color-border);
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-3);
+	font-size: var(--text-xs);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-footer-label {
+	color: var(--color-text-muted);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	margin-right: var(--space-2);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-footer-link {
+	color: var(--color-brand-deep);
+	text-decoration: none;
+	padding: 4px 10px;
+	border-radius: var(--radius-sm);
+	border: 1px solid var(--color-border);
+	background: var(--color-surface);
+	transition: background var(--ease-fast), border-color var(--ease-fast);
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-footer-link:hover {
+	background: var(--color-brand-tint);
+	border-color: var(--color-brand);
+	text-decoration: none;
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §12 · STATES
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.__PREFIX__-dash-page .__PREFIX__-dash-empty {
+	color: var(--color-text-subtle);
+	font-style: italic;
+	text-align: center;
+	padding: var(--space-6) 0;
+}
+.__PREFIX__-dash-page .__PREFIX__-dash-loading {
+	color: var(--color-text-subtle);
+	text-align: center;
+	padding: var(--space-10) 0;
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * §13 · RESPONSIVE
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (max-width: 1100px) {
+	.__PREFIX__-dash-page .__PREFIX__-dash-row-4,
+	.__PREFIX__-dash-page .__PREFIX__-dash-row-5,
+	.__PREFIX__-dash-page .__PREFIX__-dash-row-6 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+	.__PREFIX__-dash-page .__PREFIX__-dash-row-3,
+	.__PREFIX__-dash-page .__PREFIX__-dash-row-4,
+	.__PREFIX__-dash-page .__PREFIX__-dash-row-5,
+	.__PREFIX__-dash-page .__PREFIX__-dash-row-6 { grid-template-columns: 1fr 1fr; }
+	.__PREFIX__-dash-page .__PREFIX__-dash-row-2 { grid-template-columns: 1fr; }
+}
